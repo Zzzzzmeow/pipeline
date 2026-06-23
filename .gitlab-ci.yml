@@ -1,0 +1,51 @@
+stages:
+  - build
+  - test
+
+variables:
+  CANGJIE_HOME: "/opt/cangjie"
+  CJC: "${CANGJIE_HOME}/bin/cjc"
+  CJPM: "${CANGJIE_HOME}/tools/bin/cjpm"
+
+before_script:
+  - export PATH="${CANGJIE_HOME}/bin:${CANGJIE_HOME}/tools/bin:${PATH}"
+  - cjc --version
+  - cjpm --version
+
+build:
+  stage: build
+  script:
+    - cjpm build
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1h
+  tags:
+    - cangjie
+
+unit-test:
+  stage: test
+  script:
+    - cjpm test --verbose
+  dependencies:
+    - build
+  tags:
+    - cangjie
+  artifacts:
+    when: always
+    reports:
+      junit: target/test-report.xml
+    paths:
+      - target/
+    expire_in: 7d
+
+coverage:
+  stage: test
+  script:
+    - cjpm test --coverage
+    - cjcov --summary
+  dependencies:
+    - build
+  tags:
+    - cangjie
+  allow_failure: true
