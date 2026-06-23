@@ -1,34 +1,31 @@
-name: cangjie-ci-cd
+name: Cangjie CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  unit-test:
+  build-and-test:
     runs-on: self-hosted
     env:
       CANGJIE_HOME: /root/cangjie
     steps:
-      - name: checkout
-        uses: checkout@v1
+      - uses: actions/checkout@v4
 
-      - name: verify-environment
+      - name: Verify environment
         run: |
           export PATH="${CANGJIE_HOME}/bin:${CANGJIE_HOME}/tools/bin:${PATH}"
           cjc --version
           cjpm --version
 
-      - name: build
+      - name: Build
         run: |
           export PATH="${CANGJIE_HOME}/bin:${CANGJIE_HOME}/tools/bin:${PATH}"
           cjpm build
 
-      - name: unit-test
+      - name: Unit test
         run: |
           export PATH="${CANGJIE_HOME}/bin:${CANGJIE_HOME}/tools/bin:${PATH}"
           cjpm test --verbose
